@@ -1,0 +1,53 @@
+org: sewidat
+app: projectx
+service: users
+
+frameworkVersion: "2 || 3"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  environment:
+    tableName: ${self:custom.tableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "*"
+plugins:
+  - serverless-package-common
+  - serverless-plugin-webpack
+custom:
+  webpack:
+    config: config/webpack.config.js
+    series: true # run Webpack in series, useful for large projects. Defaults to false.
+  packageCommon:
+    common:
+      - "../common"
+  tableName: usersTable
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /hello
+          method: POST
+  putUser:
+    handler: api.putUser
+    events:
+      - httpApi:
+          path: /users
+          method: PUT
+  getUser:
+    handler: api.getUser
+    events:
+      - httpApi:
+          path: /user
+          method: GET
+  rmUser:
+    handler: api.rmUser
+    events:
+      - httpApi:
+          path: /user
+          method: DELETE

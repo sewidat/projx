@@ -1,0 +1,52 @@
+org: sewidat
+app: projectx
+service: projectX
+frameworkVersion: '2 || 3'
+
+custom:
+  tableName: 'usersTable'
+  webpack:
+    config: config/webpack.config.js
+    series: true # run Webpack in series, useful for large projects. Defaults to false.
+plugins:
+  - serverless-plugin-webpack
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: '20201221'
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:us-east-1:795766389050:table/usersTable
+      
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi: '*'
+
+# resources:
+#   Resources:
+#     UsersTable:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         AttributeDefinitions:
+#           - AttributeName: userId
+#             AttributeType: S
+#         KeySchema:
+#           - AttributeName: userId
+#             KeyType: HASH
+#         BillingMode: PAY_PER_REQUEST
+#         TableName: ${self:custom.tableName}

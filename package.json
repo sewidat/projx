@@ -1,0 +1,31 @@
+{
+  "name": "projectx",
+  "version": "1.0.0",
+  "description": "<!-- title: 'Serverless Framework Node Express API service backed by DynamoDB on AWS' description: 'This template demonstrates how to develop and deploy a simple Node Express API service backed by DynamoDB running on AWS Lambda using the traditional Serverless Framework.' layout: Doc framework: v2 platform: AWS language: nodeJS priority: 1 authorLink: 'https://github.com/serverless' authorName: 'Serverless, inc.' authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4' -->",
+  "dependencies": {
+    "@babel/core": "^7.16.0",
+    "aws-sdk": "^2.1043.0",
+    "babel-loader": "^8.2.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "bcrypt": "^5.0.1",
+    "body-parser-for-serverless": "^1.0.1",
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^5.5.0",
+    "lodash": "^4.17.21",
+    "serverless-http": "^2.7.0",
+    "unique-username-generator": "^1.0.1",
+    "uuid": "^8.3.2",
+    "webpack": "^5.64.4"
+  },
+  "devDependencies": {
+    "serverless-package-common": "^1.0.3",
+    "serverless-plugin-webpack": "^1.5.1"
+  },
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
