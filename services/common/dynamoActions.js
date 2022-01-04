@@ -30,7 +30,7 @@ module.exports.put = async function f(obj) {
   });
   return data;
 };
-module.exports.delete = async function f(tableName, params) {
+module.exports.delete = async function f( params) {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
   const deleteItemInput = params;

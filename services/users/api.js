@@ -3,7 +3,7 @@ const dynamoAction = require("./common/dynamoActions");
 const uuid = require("uuid");
 const genUsername = require("unique-username-generator");
 const parser = require("body-parser-for-serverless");
-
+const aws = require("aws-sdk");
 let tableName = process.env.tableName;
 module.exports.hello = async (event) => {
   return {
@@ -150,8 +150,34 @@ module.exports.editUser = async (event) => {
   }
 };
 module.exports.editUserx = async (event) => {
-  const parserBody = await parser(event);
-  return Responses._200(event);
+  let data = await parser(event);
+  try {
+    const primaryKeyValue = data.email;
+    const sortKeyValue = data.name;
+    const deleteParams = {
+      TableName: tableName,
+      Key: {
+        email: {
+          S: primaryKeyValue,
+        },
+        name: {
+          S: sortKeyValue,
+        },
+      },
+    };
+    const params = {
+      TableName: tableName,
+      Item: aws.DynamoDB.Converter.marshall(data),
+    };
+    const deleteOutput = await dynamoAction.delete( deleteParams);
+    const op = await dynamoAction.put(params);
+    if (!op) {
+      return Responses._400({ message: `not added for ${email}` });
+    }
+    return Responses._200(params.Item);
+  } catch (error) {
+    return Responses._400(error);
+  }
 };
 module.exports.scanByID = async (event) => {
   let parserBody = await parser(event);
