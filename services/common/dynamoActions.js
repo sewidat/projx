@@ -39,56 +39,19 @@ module.exports.delete = async function f(tableName, params) {
     .promise();
   return deleteItemOutput;
 };
-module.exports.scan = async function f(tableName, scanInput) {
+module.exports.scan = async (scanInput) => {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
-  var data;
-  await executeScan(dynamoDbClient, scanInput).then((value) => {
-    data = value;
-  });
-  return data;
-};
-async function executeScan(dynamoDbClient, scanInput) {
   try {
     const scanOutput = await dynamoDbClient.scan(scanInput).promise();
     return scanOutput;
   } catch (err) {
     return err;
   }
-}
+};
 function createDynamoDbClient(regionName) {
   AWS.config.update({ region: regionName });
   return new AWS.DynamoDB();
-}
-function createPutItemInput(
-  primaryKeyName,
-  primaryKeyValue,
-  sortKeyName,
-  sortKeyValue,
-  tableName
-) {
-  const obj = {};
-  obj["TableName"] = tableName;
-  const item = {};
-  item[primaryKeyName] = { S: primaryKeyValue };
-  item[sortKeyName] = { N: sortKeyValue };
-  obj["Item"] = item;
-  return obj;
-}
-function createDeleteItemInput(
-  primaryKeyName,
-  primaryKeyValue,
-  sortKeyName,
-  sortKeyValue,
-  tableName
-) {
-  const obj = {};
-  obj["TableName"] = tableName;
-  const key = {};
-  key[primaryKeyName] = { S: primaryKeyValue };
-  key[sortKeyName] = { N: sortKeyValue };
-  obj["Key"] = key;
-  return obj;
 }
 
 function createQueryInput(primaryKeyName, primaryKeyValue, tableName) {
@@ -125,14 +88,17 @@ async function executeQuery(dynamoDbClient, queryInput) {
     return err;
   }
 }
-async function executeDeleteItem(dynamoDbClient, deleteItemInput) {
-  // Call DynamoDB's deleteItem API
+module.exports.updateItem = async function updateItem(updateItemInput) {
+  const region = "us-east-1";
+  const dynamoDbClient = createDynamoDbClient(region);
+  // Call DynamoDB's updateItem API
   try {
-    const deleteItemOutput = await dynamoDbClient
-      .deleteItem(deleteItemInput)
+    const updateItemOutput = await dynamoDbClient
+      .updateItem(updateItemInput)
       .promise();
-    return deleteItemOutput;
-    console.info("Successfully deleted item.");
-    // Handle deleteItemOutput
-  } catch (err) {}
-}
+    console.info("Successfully updated item.");
+    return updateItemOutput;
+  } catch (err) {
+    return err;
+  }
+};

@@ -10,11 +10,14 @@ provider:
   lambdaHashingVersion: 20201221
   environment:
     tableName: ${self:custom.tableName}
+  httpApi:
+    cors: true
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
-      Resource: "*"
+      Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
+
 plugins:
   - serverless-package-common
   - serverless-plugin-webpack
@@ -32,13 +35,15 @@ functions:
     events:
       - httpApi:
           path: /hello
-          method: POST
-  putUser:
+          method: GET
+  postUser:
     handler: api.putUser
     events:
       - httpApi:
           path: /users
-          method: PUT
+          method: POST
+          authorizer:
+            type: aws_iam
   getUser:
     handler: api.getUser
     events:
@@ -51,3 +56,21 @@ functions:
       - httpApi:
           path: /user
           method: DELETE
+  editUserx:
+    handler: api.editUserx
+    events:
+      - httpApi:
+          path: /userx
+          method: PATCH
+  editUser:
+    handler: api.editUser
+    events:
+      - httpApi:
+          path: /user
+          method: PATCH
+  scanUserByID:
+    handler: api.scanByID
+    events:
+      - httpApi:
+          path: /users
+          method: GET

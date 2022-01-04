@@ -10,7 +10,7 @@ module.exports.hello = async (event) => {
     statusCode: 200,
     body: JSON.stringify(
       {
-        message: event,
+        message: "hello",
         input: event,
       },
       null,
@@ -38,9 +38,9 @@ module.exports.getUser = async (event) => {
 };
 module.exports.putUser = async (event) => {
   const parserBody = await parser(event);
-  let { email, name, password, isAdmin, isSeller, seller } = parserBody;
+  let { email, name, password, isSeller, isAdmin, seller } = parserBody;
   let username = genUsername.generateFromEmail(email, 4);
-  if (isSeller === "false" && isAdmin === "false") {
+  if (isSeller === undefined && isAdmin === undefined) {
     isSeller = false;
     isAdmin = false;
     seller = null;
@@ -79,10 +79,11 @@ module.exports.putUser = async (event) => {
     if (!op) {
       return Responses._400({ message: `not added for ${email}` });
     }
-    return Responses._200(op.statusCode);
+    return Responses._200(params.Item);
   } catch (error) {
     return Responses._400(error);
   }
+  return Responses._200({ message: email });
 };
 module.exports.rmUser = async (event) => {
   try {
@@ -128,3 +129,94 @@ module.exports.rmUser = async (event) => {
     return Responses._400(error);
   }
 };
+module.exports.editUser = async (event) => {
+  let email = event.queryStringParameters.email;
+  let name = event.queryStringParameters.name;
+  let newPassword = event.queryStringParameters.newPassword;
+  let scanParams = makeScanParams("email", email);
+  let currentData = await dynamoAction.scan(tableName, scanParams);
+
+  currentData = currentData.Items[0];
+  let params = createUpdateItemInput(
+    currentData.email.S,
+    currentData.name.S,
+    newPassword
+  );
+  try {
+    let data = await dynamoAction.updateItem(params);
+    return Responses._200(data);
+  } catch (error) {
+    return Responses._400(error);
+  }
+};
+module.exports.editUserx = async (event) => {
+  const parserBody = await parser(event);
+  return Responses._200(event);
+};
+module.exports.scanByID = async (event) => {
+  let parserBody = await parser(event);
+  let id = parserBody.id;
+  let params = makeIdscanInput("id", id);
+  // return Responses._200(params);
+  try {
+    let op = await dynamoAction.scan(params);
+    if (op) {
+      return Responses._200(op.Items[0]);
+    }
+    return Responses._400({ message: "something went wrong!" });
+  } catch (error) {
+    return Responses._400(error);
+  }
+};
+function makeScanParams(valueName, value) {
+  return {
+    TableName: tableName,
+    ConsistentRead: false,
+    FilterExpression: "#a88b0 = :a88b0",
+    ExpressionAttributeValues: {
+      ":a88b0": {
+        S: value,
+      },
+    },
+    ExpressionAttributeNames: {
+      "#a88b0": valueName,
+    },
+  };
+}
+function createUpdateItemInput(email, name, newPass) {
+  return {
+    TableName: tableName,
+    Key: {
+      email: {
+        S: email,
+      },
+      name: {
+        S: name,
+      },
+    },
+    UpdateExpression: "SET #51410 = :51410",
+    ExpressionAttributeValues: {
+      ":51410": {
+        S: newPass,
+      },
+    },
+    ExpressionAttributeNames: {
+      "#51410": "password",
+    },
+  };
+}
+function makeIdscanInput(valueName, value) {
+  return {
+    TableName: tableName,
+    ConsistentRead: false,
+    FilterExpression: "#87ea0 = :87ea0",
+    ExpressionAttributeValues: {
+      ":87ea0": {
+        S: value,
+      },
+    },
+    ExpressionAttributeNames: {
+      "#87ea0": valueName,
+    },
+  };
+}
