@@ -1,0 +1,53 @@
+org: sewidat
+app: projectx
+service: products
+
+frameworkVersion: "2 || 3"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  environment:
+    tableName: ${self:custom.tableName}
+  httpApi:
+    cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
+
+plugins:
+  - serverless-package-common
+  - serverless-plugin-webpack
+custom:
+  webpack:
+    config: config/webpack.config.js
+    series: true # run Webpack in series, useful for large projects. Defaults to false.
+  packageCommon:
+    common:
+      - "../common"
+  tableName: ProductsTable
+
+functions:
+  hello:
+    handler: handler.hello
+  getAllProducts:
+    handler: handler.getAllProducts
+    events:
+      - httpApi:
+          path: /products
+          method: GET
+  getByID:
+    handler: handler.getByID
+    events:
+      - httpApi:
+          path: /product
+          method: GET
+  addProduct:
+    handler: handler.addProduct
+    events:
+      - httpApi:
+          path: /product
+          method: POST

@@ -1,5 +1,6 @@
 const Responses = require("./common/apiRes");
 const dynamoAction = require("./common/dynamoActions");
+const dynamoP = require("./common/dynamoP.js");
 const uuid = require("uuid");
 const genUsername = require("unique-username-generator");
 const parser = require("body-parser-for-serverless");
@@ -86,6 +87,7 @@ module.exports.putUser = async (event) => {
   return Responses._200({ message: email });
 };
 module.exports.rmUser = async (event) => {
+  let data = await parser(event);
   try {
     const scanParams = {
       TableName: tableName,
@@ -93,11 +95,11 @@ module.exports.rmUser = async (event) => {
       FilterExpression: "#a88b0 = :a88b0",
       ExpressionAttributeValues: {
         ":a88b0": {
-          S: event.queryStringParameters.email,
+          S: data.id,
         },
       },
       ExpressionAttributeNames: {
-        "#a88b0": "email",
+        "#a88b0": "id",
       },
     };
     let op = await dynamoAction.scan(tableName, scanParams);
@@ -169,7 +171,7 @@ module.exports.editUserx = async (event) => {
       TableName: tableName,
       Item: aws.DynamoDB.Converter.marshall(data),
     };
-    const deleteOutput = await dynamoAction.delete( deleteParams);
+    const deleteOutput = await dynamoAction.delete(deleteParams);
     const op = await dynamoAction.put(params);
     if (!op) {
       return Responses._400({ message: `not added for ${email}` });
@@ -194,6 +196,25 @@ module.exports.scanByID = async (event) => {
     return Responses._400(error);
   }
 };
+module.exports.getAllSellers = async (event) => {
+  return Responses._200("test passed ");
+};
+module.exports.test = async (event) => {
+  return Responses._200("test passed ");
+};
+module.exports.topSellers = async (event) => {
+  try {
+    let topSellers = await dynamoP.getAllSellers();
+    if (topSellers) {
+      return Responses._200(topSellers);
+    }
+    return Responses._400("sommething went wrong");
+  } catch (error) {
+    return Responses._400(error);
+  }
+  return Responses._200("test passed ");
+};
+module.exports.getAllSellers = async (event) => {};
 function makeScanParams(valueName, value) {
   return {
     TableName: tableName,

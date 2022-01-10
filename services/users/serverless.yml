@@ -16,7 +16,8 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
-      Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
+      Resource: "*"
+      # "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
 
 plugins:
   - serverless-package-common
@@ -73,4 +74,22 @@ functions:
     events:
       - httpApi:
           path: /users
+          method: GET
+  getAllSellers:
+    handler: api.getAllSellers
+    events:
+      - httpApi:
+          path: /users/topSellers
+          method: GET
+  test:
+    handler: api.test
+    events:
+      - httpApi:
+          path: /users/test
+          method: GET
+  topSellers:
+    handler: api.topSellers
+    events:
+      - httpApi:
+          path: /users/topSellersX
           method: GET
