@@ -19,14 +19,15 @@ module.exports.getByID = async (tableName, id) => {
 };
 module.exports.getAllSellers = async () => {
   const dynamoDbClient = createDynamoDbClient(region);
-  let statment = { Statement: `select * from tableX where seller <> NULL;` };
+  let statment = {
+    Statement: `select * from usersTable where seller <> NULL;`,
+  };
   let output = await executeStatement(dynamoDbClient, statment);
   var arr = [];
   output.Items.forEach((element) => {
     arr.push(aws.DynamoDB.Converter.unmarshall(element));
   });
-  // arr.push(AWS.DynamoDB.Converter.unmarshall(output.Items[0]));
-  // return arr.sort(compare).slice(0, 3);
+  // return arr.sort(compare).sort(compareb).slice(0, 3);
   return arr;
 };
 
@@ -35,13 +36,4 @@ async function executeStatement(dynamoDbClient, statment) {
     .executeStatement(statment)
     .promise();
   return executeStatementOutput;
-}
-function compare(a, b) {
-  if (a.seller.rating < b.seller.rating) {
-    return -1;
-  }
-  if (a.seller.rating > b.seller.rating) {
-    return 1;
-  }
-  return 0;
 }
