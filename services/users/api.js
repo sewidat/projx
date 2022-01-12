@@ -214,6 +214,19 @@ module.exports.topSellers = async (event) => {
   }
   return Responses._200("test passed ");
 };
+module.exports.getSeller = async (event) => {
+  let data = await parser(event);
+  data = data.id;
+  try {
+    let seller = await dynamoP.getSeller(data);
+    if (seller) {
+      return Responses._200(seller);
+    }
+    return Responses._400("something went wrong!");
+  } catch (error) {
+    return Responses._400(error);
+  }
+};
 module.exports.getAllSellers = async (event) => {};
 function makeScanParams(valueName, value) {
   return {

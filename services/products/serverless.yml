@@ -17,6 +17,11 @@ provider:
       Action:
         - dynamodb:*
       Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "arn:aws:dynamodb:${aws:region}:*:table/sellers"      
+      
 
 plugins:
   - serverless-package-common

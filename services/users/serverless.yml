@@ -93,3 +93,10 @@ functions:
       - httpApi:
           path: /users/topSellersX
           method: GET
+  getSeller:
+    handler: api.getSeller
+    events:
+      - httpApi:
+          path: /users/seller
+          method: GET
+    

@@ -15,6 +15,8 @@ module.exports.getByID = async (tableName, id) => {
   const dynamoDbClient = createDynamoDbClient(region);
   let statment = { Statement: `select * from ${tableName} where id ='${id}'` };
   let output = await executeStatement(dynamoDbClient, statment);
+  let seller = await this.getSeller(output.Items[0].sellerID.S);
+  output["seller"] = seller;
   return output;
 };
 module.exports.getAllSellers = async () => {
@@ -28,6 +30,18 @@ module.exports.getAllSellers = async () => {
     arr.push(aws.DynamoDB.Converter.unmarshall(element));
   });
   // return arr.sort(compare).sort(compareb).slice(0, 3);
+  return arr;
+};
+module.exports.getSeller = async (id) => {
+  const dynamoDbClient = createDynamoDbClient(region);
+  let statment = {
+    Statement: `select * from sellers where id = '${id}'`,
+  };
+  let output = await executeStatement(dynamoDbClient, statment);
+  var arr = [];
+  output.Items.forEach((element) => {
+    arr.push(aws.DynamoDB.Converter.unmarshall(element));
+  });
   return arr;
 };
 
