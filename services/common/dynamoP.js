@@ -9,14 +9,23 @@ module.exports.getAll = async (tableName) => {
   const dynamoDbClient = createDynamoDbClient(region);
   let statment = { Statement: `select * from ${tableName};` };
   let output = await executeStatement(dynamoDbClient, statment);
+  output = await bind(output.Items);
   return output;
+};
+const bind = async (_) => {
+  for (let index = 0; index < _.length; index++) {
+    const element = _[index];
+    let seller = await this.getSeller(element.sellerID.S);
+    element["seller"] = seller;
+  }
+  return _;
 };
 module.exports.getByID = async (tableName, id) => {
   const dynamoDbClient = createDynamoDbClient(region);
   let statment = { Statement: `select * from ${tableName} where id ='${id}'` };
   let output = await executeStatement(dynamoDbClient, statment);
   let seller = await this.getSeller(output.Items[0].sellerID.S);
-  output["seller"] = seller;
+  output.Items[0]["seller"] = seller;
   return output;
 };
 module.exports.getAllSellers = async () => {
