@@ -31,7 +31,7 @@ module.exports.getByID = async (tableName, id) => {
 module.exports.getAllSellers = async () => {
   const dynamoDbClient = createDynamoDbClient(region);
   let statment = {
-    Statement: `select * from usersTable where seller <> NULL;`,
+    Statement: `select * from sellers`,
   };
   let output = await executeStatement(dynamoDbClient, statment);
   var arr = [];
@@ -53,7 +53,32 @@ module.exports.getSeller = async (id) => {
   });
   return arr;
 };
+module.exports.getCategories = async (tableName) => {
+  const dynamoDbClient = createDynamoDbClient(region);
+  let statment = {
+    Statement: `select category from ${tableName}`,
+  };
+  let output = await executeStatement(dynamoDbClient, statment);
+  let arr = [];
+  output.Items.forEach((element) => {
+    arr.push(aws.DynamoDB.Converter.unmarshall(element));
+  });
+  const uniqueAddresses = Array.from(new Set(arr.map((a) => a.category))).map(
+    (category) => {
+      return arr.find((a) => a.category === category);
+    }
+  );
 
+  return uniqueAddresses;
+};
+module.exports.addProduct = async (tableName, product) => {
+  const dynamoDbClient = createDynamoDbClient(region);
+  let statment = {
+    Statement: `INSERT INTO ${tableName} value ${product}`,
+  };
+  let output = await executeStatement(dynamoDbClient, statment);
+  return output;
+};
 async function executeStatement(dynamoDbClient, statment) {
   let executeStatementOutput = await dynamoDbClient
     .executeStatement(statment)

@@ -21,7 +21,6 @@ module.exports.get = async function f(
 module.exports.put = async function f(obj) {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
-  //create put item input will be implemented in the calling method
   const putItemInput = obj;
 
   var data;

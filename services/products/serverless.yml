@@ -7,7 +7,6 @@ frameworkVersion: "2 || 3"
 provider:
   name: aws
   runtime: nodejs12.x
-  lambdaHashingVersion: 20201221
   environment:
     tableName: ${self:custom.tableName}
   httpApi:
@@ -20,8 +19,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
-      Resource: "arn:aws:dynamodb:${aws:region}:*:table/sellers"      
-      
+      Resource: "arn:aws:dynamodb:${aws:region}:*:table/sellers"
 
 plugins:
   - serverless-package-common
@@ -49,6 +47,12 @@ functions:
     events:
       - httpApi:
           path: /product
+          method: GET
+  getCategories:
+    handler: handler.getCategories
+    events:
+      - httpApi:
+          path: /categories
           method: GET
   addProduct:
     handler: handler.addProduct
