@@ -15,11 +15,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
-      Resource: "arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.tableName}"
-    - Effect: Allow
-      Action:
-        - dynamodb:*
-      Resource: "arn:aws:dynamodb:${aws:region}:*:table/sellers"
+      Resource: "*"
 
 plugins:
   - serverless-package-common
@@ -60,3 +56,15 @@ functions:
       - httpApi:
           path: /product
           method: POST
+  deleteProduct:
+    handler: handler.deleteProduct
+    events:
+      - httpApi:
+          path: /product
+          method: DELETE
+  getProductsForSeller:
+    handler: handler.getProductsForSeller
+    events:
+      - httpApi:
+          path: /seller/products
+          method: GET

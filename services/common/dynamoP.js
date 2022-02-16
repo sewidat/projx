@@ -47,11 +47,25 @@ module.exports.getSeller = async (id) => {
     Statement: `select * from sellers where id = '${id}'`,
   };
   let output = await executeStatement(dynamoDbClient, statment);
+  statment = {
+    Statement: `select email from usersTable where id = '${id}'`,
+  };
+  let output2 = await executeStatement(dynamoDbClient, statment);
   var arr = [];
   output.Items.forEach((element) => {
     arr.push(aws.DynamoDB.Converter.unmarshall(element));
   });
+  arr[0].email = aws.DynamoDB.Converter.unmarshall(output2.Items[0]).email;
   return arr;
+};
+module.exports.getAllForSeller = async (tableName, id) => {
+  const dynamoDbClient = createDynamoDbClient(region);
+  let statment = {
+    Statement: `select * from ${tableName} where sellerID ='${id}'`,
+  };
+  let output = await executeStatement(dynamoDbClient, statment);
+  output = await bind(output.Items);
+  return output;
 };
 module.exports.getCategories = async (tableName) => {
   const dynamoDbClient = createDynamoDbClient(region);
@@ -71,10 +85,10 @@ module.exports.getCategories = async (tableName) => {
 
   return uniqueAddresses;
 };
-module.exports.addProduct = async (tableName, product) => {
+module.exports.deleteProduct = async (tableName, att1) => {
   const dynamoDbClient = createDynamoDbClient(region);
   let statment = {
-    Statement: `INSERT INTO ${tableName} value ${product}`,
+    Statement: `DELETE FROM "${tableName}" where "id" = '${att1}'`,
   };
   let output = await executeStatement(dynamoDbClient, statment);
   return output;

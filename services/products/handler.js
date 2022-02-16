@@ -32,6 +32,19 @@ module.exports.getAllProducts = async (event) => {
     return Responses._400({ message: error });
   }
 };
+module.exports.getProductsForSeller = async (event) => {
+  try {
+    let data = await parser(event);
+    let id = data.id;
+    let op = await dynamo.getAllForSeller(tableName,id);
+    if (op) {
+      return Responses._200(op);
+    }
+    return Responses._400(`not found for ${id}`);
+  } catch (error) {
+    return Responses._400(error);
+  }
+};
 module.exports.getByID = async (event) => {
   try {
     let data = await parser(event);
@@ -62,12 +75,29 @@ module.exports.addProduct = async (event) => {
   product = qs.parse(product);
   product = aws.DynamoDB.Converter.marshall(product);
   let item = {};
+  item["TableName"] = tableName;
+  item["Item"] = product;
   try {
-    item["TableName"] = tableName;
-    item["Item"] = product;
-    let op = await dynamoAction.put(item);
-    if (op) return Response._200(op);
+    const op = await dynamoAction.put(item);
+    if (!op) {
+      return Responses._400({ message: `not added for ${email}` });
+    }
+    return Responses._200(item.Item);
   } catch (error) {
-    return Responses._400({ message: item });
+    return Responses._400(error);
+  }
+};
+module.exports.updateProduct = async (event) => {};
+module.exports.deleteProduct = async (event) => {
+  let product = await parser(event);
+  product = qs.parse(product);
+  try {
+    let op = await dynamo.deleteProduct(tableName, product.id);
+    if (op) {
+      return Responses._200(op);
+    }
+    return Responses._400(`not found for ${id}`);
+  } catch (error) {
+    return Responses._400(error);
   }
 };

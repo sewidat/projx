@@ -22,14 +22,17 @@ module.exports.put = async function f(obj) {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
   const putItemInput = obj;
-
-  var data;
-  await executePutItem(dynamoDbClient, putItemInput).then((value) => {
-    data = value;
-  });
-  return data;
+  try {
+    var data;
+    await executePutItem(dynamoDbClient, putItemInput).then((value) => {
+      data = value;
+    });
+    return data;
+  } catch (error) {
+    return error;
+  }
 };
-module.exports.delete = async function f( params) {
+module.exports.delete = async function f(params) {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
   const deleteItemInput = params;
