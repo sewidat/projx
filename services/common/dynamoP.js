@@ -6,19 +6,27 @@ function createDynamoDbClient(regionName) {
   return new aws.DynamoDB();
 }
 module.exports.getAll = async (tableName) => {
-  const dynamoDbClient = createDynamoDbClient(region);
-  let statment = { Statement: `select * from ${tableName};` };
-  let output = await executeStatement(dynamoDbClient, statment);
-  output = await bind(output.Items);
-  return output;
+  try {
+    const dynamoDbClient = createDynamoDbClient(region);
+    let statment = { Statement: `select * from ${tableName}` };
+    let output = await executeStatement(dynamoDbClient, statment);
+    output = await bind(output.Items);
+    return output;
+  } catch (error) {
+    return error;
+  }
 };
 const bind = async (_) => {
-  for (let index = 0; index < _.length; index++) {
-    const element = _[index];
-    let seller = await this.getSeller(element.sellerID.S);
-    element["seller"] = seller;
+  try {
+    // for (let index = 0; index < _.length; index++) {
+    //   const element = _[index];
+    //   let seller = await this.getSeller(element.sellerID.S);
+    //   element["seller"] = seller;
+    // }
+    return _;
+  } catch (error) {
+    return error;
   }
-  return _;
 };
 module.exports.getByID = async (tableName, id) => {
   const dynamoDbClient = createDynamoDbClient(region);
@@ -91,6 +99,15 @@ module.exports.deleteProduct = async (tableName, att1) => {
     Statement: `DELETE FROM "${tableName}" where "id" = '${att1}'`,
   };
   let output = await executeStatement(dynamoDbClient, statment);
+  return output;
+};
+module.exports.getAllByCategory = async (tableName, category) => {
+  const dynamoDbClient = createDynamoDbClient(region);
+  let statment = {
+    Statement: `select * from ${tableName} where category ='${category}'`,
+  };
+  let output = await executeStatement(dynamoDbClient, statment);
+  output = await bind(output.Items);
   return output;
 };
 async function executeStatement(dynamoDbClient, statment) {

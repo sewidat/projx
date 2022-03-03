@@ -93,12 +93,11 @@ async function executeQuery(dynamoDbClient, queryInput) {
 module.exports.updateItem = async function updateItem(updateItemInput) {
   const region = "us-east-1";
   const dynamoDbClient = createDynamoDbClient(region);
-  // Call DynamoDB's updateItem API
   try {
-    const updateItemOutput = await dynamoDbClient
+    let data;
+    let updateItemOutput = await dynamoDbClient
       .updateItem(updateItemInput)
       .promise();
-    console.info("Successfully updated item.");
     return updateItemOutput;
   } catch (err) {
     return err;

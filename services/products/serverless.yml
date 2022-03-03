@@ -68,3 +68,15 @@ functions:
       - httpApi:
           path: /seller/products
           method: GET
+  updateProduct:
+    handler: handler.updateProduct
+    events:
+      - httpApi:
+          path: /product
+          method: PUT
+  getAllByCategory:
+    handler: handler.getAllByCategory
+    events:
+      - httpApi:
+          path: /product/category
+          method: GET
