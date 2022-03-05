@@ -80,3 +80,27 @@ functions:
       - httpApi:
           path: /product/category
           method: GET
+  productWithReviews:
+    handler: handler.productWithReviews
+    events:
+      - httpApi:
+          path: /product/reviews
+          method: GET
+  addReview:
+    handler: handler.addReview
+    events:
+      - httpApi:
+          path: /product/review
+          method: POST
+  getRating:
+    handler: handler.getRating
+    events:
+      - httpApi:
+          path: /product/rating
+          method: GET
+  setRating:
+    handler: handler.setRating
+    events:
+      - httpApi:
+          path: /product/raiting
+          method: POST

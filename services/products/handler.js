@@ -26,11 +26,57 @@ module.exports.getAllProducts = async (event) => {
     let op = await dynamo.getAll(tableName);
     if (op) {
       return Responses._200(op);
-    } else {
-      return Responses._400("something went wrong!");
     }
+    return Responses._400(`something went wrong`);
   } catch (error) {
-    return Responses._400({ message: error });
+    return Responses._400("error");
+  }
+};
+module.exports.productWithReviews = async (event) => {
+  try {
+    let data = await parser(event);
+    let id = data.id;
+    let op = await dynamo.getByIDR("reviews", id);
+    if (op) {
+      return Responses._200(op);
+    }
+    return Responses._400(`not found for ${id}`);
+  } catch (error) {
+    return Responses._400(error);
+  }
+};
+module.exports.addReview = async (event) => {
+  let data = await parser(event);
+  let product_id = data.product_id;
+  let user_name = data.user_name;
+  let rating = data.rating;
+  let comment = data.comment;
+  let item = {
+    TableName: "reviews",
+    Item: {
+      product_id: {
+        S: product_id,
+      },
+      user_name: {
+        S: user_name,
+      },
+      rating: {
+        N: rating,
+      },
+      comment: {
+        S: comment,
+      },
+    },
+  };
+  try {
+    const op = await dynamoAction.put(item);
+    const op2 = await dynamo.incrementReviews(product_id);
+    if (!op) {
+      return Responses._400({ message: "something went wrong" });
+    }
+    return Responses._200(op2);
+  } catch (error) {
+    return Responses._400({ message: "something went wrong" });
   }
 };
 module.exports.getProductsForSeller = async (event) => {
@@ -44,6 +90,27 @@ module.exports.getProductsForSeller = async (event) => {
     return Responses._400(`not found for ${id}`);
   } catch (error) {
     return Responses._400(error);
+  }
+};
+module.exports.getRating = async (event) => {
+  let data = await parser(event);
+  let id = data.id;
+  const op = await dynamo.getRatings(id);
+  if (op) {
+    return Responses._200(op);
+  } else {
+    return Responses._400("something went wrong");
+  }
+};
+module.exports.setRating = async (event) => {
+  let data = await parser(event);
+  let id = data.id;
+  let rating = data.rating;
+  const op = await dynamo.setRating(id, rating);
+  if (op) {
+    return Responses._200(op);
+  } else {
+    return Responses._400("something went wrong");
   }
 };
 module.exports.getByID = async (event) => {
@@ -81,12 +148,25 @@ module.exports.addProduct = async (event) => {
   item["Item"].id = {
     S: uuid.v4(),
   };
+  item["Item"].numReviews = {
+    N: "0",
+  };
+  item["Item"].price = {
+    N: "0",
+  };
+  item["Item"].rating = {
+    N: "0",
+  };
+  item["Item"].countInStock = {
+    N: "0",
+  };
+
   try {
     const op = await dynamoAction.put(item);
     if (!op) {
       return Responses._400({ message: `not added for ${email}` });
     }
-    return Responses._200(item.Item);
+    return Responses._200({ id: item["Item"].id.S });
   } catch (error) {
     return Responses._400(error);
   }
