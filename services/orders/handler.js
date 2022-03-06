@@ -174,6 +174,20 @@ module.exports.postOrder = async (event) => {
       return Responses._400({ message: `not added for ${id}` });
     }
     const op2 = await dynamoAction.get("id", id, tableName);
+    order = aws.DynamoDB.Converter.unmarshall(order);
+    for (let index = 0; index < order.orderItems.length; index++) {
+      await dynamoAction.updateItem({
+        TableName: "ProductsTable",
+        Key: {
+          id: { S: order.orderItems[index].product },
+        },
+        UpdateExpression: "SET #42a90 = #42a90 - :42a90",
+        ExpressionAttributeNames: { "#42a90": "countInStock" },
+        ExpressionAttributeValues: {
+          ":42a90": { N: `${order.orderItems[index].qty}` },
+        },
+      });
+    }
     if (!op2) {
       return Responses._400({ message: `not added for ${id}` });
     }
