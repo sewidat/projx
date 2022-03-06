@@ -1,0 +1,74 @@
+org: sewidat
+app: projectx
+console: true
+service: orders
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  environment:
+    tableName: ${self:custom.tableName}
+  httpApi:
+    cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "*"
+
+plugins:
+  - serverless-package-common
+  - serverless-plugin-webpack
+custom:
+  webpack:
+    config: config/webpack.config.js
+    series: true # run Webpack in series, useful for large projects. Defaults to false.
+  packageCommon:
+    common:
+      - "../common"
+  tableName: orders
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
+  postOrder:
+    handler: handler.postOrder
+    events:
+      - httpApi:
+          path: /order
+          method: POST
+  getOrder:
+    handler: handler.getOrder
+    events:
+      - httpApi:
+          path: /order
+          method: GET
+  getOrdersForCurrentUser:
+    handler: handler.getOrdersForCurrentUser
+    events:
+      - httpApi:
+          path: /user/order
+          method: GET
+  ordersForSeller:
+    handler: handler.ordersForSeller
+    events:
+      - httpApi:
+          path: /seller/order
+          method: GET
+  updateOrder:
+    handler: handler.updateOrder
+    events:
+      - httpApi:
+          path: /order
+          method: PUT
+  deleteOrder:
+    handler: handler.deleteOrder
+    events:
+      - httpApi:
+          path: /order
+          method: DELETE
